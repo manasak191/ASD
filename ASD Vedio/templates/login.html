@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <style>
+        /* style.css */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Add background image with blur effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../static/img/smartgaze-1.jpg') no-repeat center center/cover;
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .login {
+            width: 400px;
+            padding: 40px;
+            background-color: #ffffffb5;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #ef4033;
+        }
+
+        .links {
+            margin-bottom: 20px;
+        }
+
+        .links a {
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            color: white;
+            background-color: #ef4033;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .links a.active {
+            background-color: white;
+            color: #ef4033;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            display: none;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background-color: #ef4033;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ef4033a6;
+        }
+
+        .msg {
+            color: red;
+            margin-bottom: 15px;
+            min-height: 18px; /* keeps layout stable */
+        }
+
+        .fas {
+            position: absolute;
+            margin-left: 10px;
+            color: #cccccc;
+        }
+
+        p a {
+            text-decoration: none;
+            color: #ef4033;
+        }
+
+        p a:hover {
+            color: #ef4033a6;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login">
+        <h1>Login</h1>
+        <div class="links">
+            <a href="{{ url_for('login') }}" class="active">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        </div>
+        <form action="{{ url_for('login') }}" method="post" onsubmit="return validateLogin()">
+            <label for="username">
+                <i class="fas fa-user"></i>
+            </label>
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                id="username"
+                required
+                minlength="3"
+                pattern="[A-Za-z0-9]+"
+                title="Username must contain only letters and numbers, at least 3 characters."
+            >
+
+            <label for="password">
+                <i class="fas fa-lock"></i>
+            </label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                id="password"
+                required
+                minlength="8"
+                title="Password must be at least 8 characters."
+            >
+
+            <!-- Age dropdown -->
+            <label for="age"></label>
+            <select name="age" id="age" required>
+                <option value="">Select age</option>
+                <!-- you can adjust range if you want -->
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+            </select>
+
+            <div class="msg" id="client-msg">{{ msg }}</div>
+            <input type="submit" value="Login">
+
+            <p><a href="{{ url_for('reset_password') }}">Forgot Password?</a></p>
+        </form>
+    </div>
+
+    <script>
+        function validateLogin() {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const ageSelect     = document.getElementById('age');
+            const msgDiv        = document.getElementById('client-msg');
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            const ageValue = ageSelect.value;
+            const age      = parseInt(ageValue, 10);
+
+            let msg = '';
+
+            if (!username || !password || !ageValue) {
+                msg = 'Please fill out the form!';
+            } else if (username.length < 3) {
+                msg = 'Username must be at least 3 characters long.';
+            } else if (!/^[A-Za-z0-9]+$/.test(username)) {
+                msg = 'Username must contain only letters and numbers.';
+            } else if (password.length < 8) {
+                msg = 'Password must be at least 8 characters long.';
+            } else if (isNaN(age)) {
+                msg = 'Please select a valid age.';
+            } else if (age > 10) {
+                msg = 'This system supports only below 10 years.';
+            }
+
+            if (msg) {
+                msgDiv.textContent = msg;
+                return false; // block submission
+            }
+
+            msgDiv.textContent = '';
+            return true; // allow submission
+        }
+    </script>
+</body>
+</html>

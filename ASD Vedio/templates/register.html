@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <style>
+        /* style.css */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Add background image with blur effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../static/img/smartgaze-1.jpg') no-repeat center center/cover;
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .register {
+            width: 400px;
+            padding: 40px;
+            background-color: #ffffffb5;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #ef4033;
+        }
+
+        .links {
+            margin-bottom: 20px;
+        }
+
+        .links a {
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            color: white;
+            background-color: #ef4033;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .links a.active {
+            background-color: white;
+            color: #ef4033;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            display: none;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background-color: #ef4033;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ef4033a6;
+        }
+
+        .msg {
+            color: red;
+            margin-bottom: 15px;
+            min-height: 18px; /* keeps layout even when empty */
+        }
+
+        .fas {
+            position: absolute;
+            margin-left: 10px;
+            color: #cccccc;
+        }
+
+        p a {
+            text-decoration: none;
+            color: #ef4033;
+        }
+
+        p a:hover {
+            color: #ef4033a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="register">
+        <h1>Register</h1>
+        <div class="links">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}" class="active">Register</a>
+        </div>
+        <form action="{{ url_for('register') }}" method="post" autocomplete="off" onsubmit="return validateForm()">
+            <label for="username">
+                <i class="fas fa-user"></i>
+            </label>
+            <!-- pattern + minlength for basic HTML5 validation -->
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                id="username"
+                required
+                minlength="3"
+                pattern="[A-Za-z0-9]+"
+                title="Username must contain only letters and numbers, at least 3 characters."
+            >
+
+            <label for="password">
+                <i class="fas fa-lock"></i>
+            </label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                id="password"
+                required
+                minlength="8"
+                title="Password must be at least 8 characters and include a letter and a number."
+            >
+
+            <label for="email">
+                <i class="fas fa-envelope"></i>
+            </label>
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                id="email"
+                required
+            >
+
+            <div class="msg" id="client-msg">{{ msg }}</div>
+
+            <input type="submit" value="Register">
+        </form>
+    </div>
+
+    <script>
+        function validateForm() {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const emailInput    = document.getElementById('email');
+            const msgDiv        = document.getElementById('client-msg');
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            const email    = emailInput.value.trim();
+
+            let msg = '';
+
+            // Username validation
+            if (username.length < 3) {
+                msg = 'Username must be at least 3 characters long.';
+            } else if (!/^[A-Za-z0-9]+$/.test(username)) {
+                msg = 'Username must contain only letters and numbers.';
+            }
+
+            // Password validation
+            else if (password.length < 8) {
+                msg = 'Password must be at least 8 characters long.';
+            } else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+                msg = 'Password must contain at least one letter and one number.';
+            }
+
+            // Email validation
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                msg = 'Please enter a valid email address.';
+            }
+
+            if (msg) {
+                msgDiv.textContent = msg;
+                return false; // prevent form submit
+            }
+
+            // clear client-side message so server message (if any) shows correctly
+            msgDiv.textContent = '';
+            return true; // allow submit
+        }
+    </script>
+</body>
+</html>

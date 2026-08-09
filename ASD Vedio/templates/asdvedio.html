@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AI-Powered Facial Analysis to Identify Early Autism Sign</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Favicon -->
+  <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Roboto:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Icon Fonts -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Libraries -->
+  <link href="{{ url_for('static', filename='lib/animate/animate.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+
+  <!-- Bootstrap & Custom CSS -->
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Navbar Start -->
+  <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top p-0 wow fadeIn" data-wow-delay="0.1s">
+    <a href="{{ url_for('home') }}" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
+      <h4 class="m-0 text-primary">AI-Powered Facial Analysis to Identify Early Autism Sign</h4>
+    </a>
+    <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <div class="navbar-nav ms-auto p-4 p-lg-0">
+        <a href="{{ url_for('home') }}" class="nav-item nav-link">Home</a>
+        <a href="{{ url_for('about') }}" class="nav-item nav-link">About</a>
+        <a href="{{ url_for('asdvedio') }}" class="nav-item nav-link active">Video Prediction</a>
+        <a href="{{ url_for('audio') }}" class="nav-item nav-link">Audio Prediction</a>
+        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </div>
+  </nav>
+  <!-- Navbar End -->
+
+  <!-- Header Section -->
+  <div class="container-fluid header bg-primary p-5 text-center text-white mb-5 wow fadeInDown" data-wow-delay="0.2s">
+    <h1 class="display-5 mb-3">ASD Video Classifier</h1>
+    <p class="lead">Upload a video to detect ASD-related behavioral patterns using advanced AI models.</p>
+  </div>
+
+  <!-- Main Content Start -->
+  <div class="container py-5">
+    <div class="bg-light rounded shadow p-5">
+      <p class="text-muted mb-4">
+        Supported formats: <strong>.mp4</strong>, <strong>.avi</strong>, <strong>.mov</strong>, <strong>.mkv</strong>
+        (note: .mp4 recommended for smooth playback)
+      </p>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert alert-info">
+            {% for message in messages %}
+              <div>{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Upload Form -->
+      <form id="uploadForm" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="mb-5">
+        <div class="input-group">
+          <input type="file" id="video" name="video" class="form-control" accept=".mp4,.avi,.mov,.mkv" required>
+          <button type="submit" class="btn btn-primary px-4">Upload &amp; Predict</button>
+        </div>
+      </form>
+
+      <!-- Video Preview -->
+      {% if video_url %}
+      <div class="preview mb-5">
+        <h3 class="text-primary mb-3">Uploaded Video</h3>
+        <video controls width="100%" height="auto" class="rounded shadow">
+          <source src="{{ video_url }}">
+          Your browser does not support HTML5 video playback.
+        </video>
+      </div>
+      {% endif %}
+
+      <!-- Prediction Result (TABLE FORMAT) -->
+      {% if prediction_result %}
+      <div class="result">
+        <h3 class="text-primary mb-3 text-center">Prediction Result</h3>
+
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered table-striped align-middle">
+            <tbody>
+              <tr>
+                <th scope="row" style="width: 30%;">Prediction Result</th>
+                <td>{{ prediction_result }}</td>
+                <!-- Expected: "Autistic" / "Non-Autistic" -->
+              </tr>
+              {% if total_frames is not none %}
+              <tr>
+                <th scope="row">Number of Frames Detected</th>
+                <td>{{ total_frames }}</td>
+              </tr>
+              {% endif %}
+              {% if autism_level %}
+              <tr>
+                <th scope="row">Level of Autism</th>
+                <td>{{ autism_level }}</td>
+                <!-- Expected: "Low" / "Medium" / "High" / "Unknown" -->
+              </tr>
+              {% endif %}
+              {% if therapy_suggestions %}
+              <tr>
+                <th scope="row">Therapy Suggestions</th>
+                <td>
+                  <ul class="mb-0">
+                    {% for suggestion in therapy_suggestions %}
+                    <li>{{ suggestion }}</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if counts %}
+        <div class="mt-4">
+          <h5 class="mb-3">Frame-level Votes</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Class</th>
+                  <th scope="col">Frames Detected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cname, cnt in counts.items() %}
+                <tr>
+                  <td>{{ cname }}</td>
+                  <td>{{ cnt }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+        <p class="mt-4 text-muted text-center" style="font-size: 0.9rem;">
+          This tool is a screening aid only and does not provide a medical diagnosis.
+          Please consult a qualified clinician for any concerns regarding autism or child development.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Main Content End -->
+
+  <!-- Back to Top -->
+  <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top">
+    <i class="bi bi-arrow-up"></i>
+  </a>
+
+  <!-- JS Libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='lib/wow/wow.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/easing/easing.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/waypoints/waypoints.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/counterup/counterup.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
